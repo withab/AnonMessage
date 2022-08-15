@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>AnonMesssage</title>
+</head>
+<body>
+    <div id="main" height="100%">
+        <p id="result"></p>
+        <p id="decrypted"></p>
+        <h1>AnonMesssage</h1>
+        <p>Host your message, your message are encrypted with <a href="https://fr.wikipedia.org/wiki/Advanced_Encryption_Standard">AES-256</a>. Your message are encrypted & decrypted in your browser so the server doesn't know your message.</p>
+        <textarea id="message"></textarea>
+        <button id="button">Encrypt & Save</button>
+    </div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+<script> 
+
+    document.getElementById('message').focus();
+
+    function click() {
+
+        const message = document.getElementById("message").value;
+      
+        if(message == '') return;
+
+        const key = getKey();
+
+        const encrypted = encrypt(message, key);
+
+        axios.post('/add', {
+            message: encrypted
+        }).then(res => {
+            
+            const id = res.data
+
+            window.location.href = `/message.html?id=${id}&key=${key}`;
+
+        })
+
+    };
+
+    document.getElementById('button').addEventListener("click", click);
+
+    function getKey() {
+
+        const a = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVW1234567890";
+        let r = "";
+
+        for ( var i = 0; i < 32; i++ ) 
+            r += a.charAt(Math.floor(Math.random() * a.length));
+
+        return r
+
+    };
+
+    function encrypt(message, key) {
+
+        return String(CryptoJS.AES.encrypt(message, key));
+    
+    }   
+
+</script>
+</html>
+<style>
+    #main {
+        margin: auto;
+        width: 60%;
+        padding: 10px;
+        text-align: center;
+    }
+    #message {
+        height: 20em;
+        width: 100%;
+        resize: none;
+    }
+    #button {
+        margin-top: 5%;
+        width: 150px;
+        height: 75px;
+        font-size: large;
+    }
+</style>
